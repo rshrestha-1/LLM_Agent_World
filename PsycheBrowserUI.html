@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Psyche &amp; Cupid — The Four Tasks</title>
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0a0510; 
+  --surf:    #12091e;
+  --surf2:   #1e1030;
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text:    #e8e0f0;
+  --muted:   #7060a0;
+  --accent:  #9060d0;
+  --acc2:    #c090ff;
+  --green:   #7effa0;
+  --red:     #ff7070;
+  --amber:   #f5d76e;
+  --pink:    #ff80ff;
+  --blue:    #80d0ff;
+  --font:    'Palatino Linotype', 'Palatino', 'Book Antiqua', Georgia, serif;
+  --mono:    'Consolas', 'Menlo', monospace;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 52px 1fr;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+}
+.logo { font-weight: 600; font-size: 16px; font-style: italic; letter-spacing: .03em; }
+.status-pill {
+  font-size: 11px; font-family: var(--mono);
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--border2); color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+.dot.on { background: var(--green); }
+
+/* ── LAYOUT ── */
+main {
+  display: grid;
+  grid-template-columns: 300px 1fr 270px;
+  overflow: hidden;
+}
+.panel { border-right: 1px solid var(--border); overflow-y: auto; padding: 1rem; }
+.panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+.sec { margin-bottom: 1.25rem; }
+.sec-title { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .6rem; font-weight: 500; font-family: var(--mono); }
+
+/* ── SCENARIO CARDS ── */
+.sc-card {
+  padding: .7rem .9rem; border-radius: 8px; margin-bottom: .5rem;
+  border: 1px solid var(--border); background: var(--surf2);
+  cursor: pointer; transition: .12s;
+}
+.sc-card:hover  { border-color: var(--border2); }
+.sc-card.active { border-color: var(--accent); background: rgba(144,96,208,.15); }
+.sc-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 2px; font-style: italic; }
+.sc-card p  { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.goal-box {
+  background: rgba(144,96,208,.1); border: 1px solid rgba(144,96,208,.25);
+  border-radius: 6px; padding: .65rem .85rem;
+  font-size: 11px; color: var(--acc2); line-height: 1.7;
+}
+
+/* ── BUTTONS ── */
+.btn-row { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .75rem; }
+.btn {
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  padding: .5rem .9rem; border-radius: 7px;
+  border: 1px solid var(--border2); cursor: pointer; transition: .12s;
+}
+.btn-primary { background: var(--accent); color: #fff; border-color: transparent; }
+.btn-primary:hover { background: #7040b0; }
+.btn-secondary { background: var(--surf2); color: var(--text); }
+.btn-secondary:hover { background: #2a1845; }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* ── LEGEND ── */
+.legend { display: flex; flex-wrap: wrap; gap: 5px; }
+.leg { display: flex; align-items: center; gap: 4px; font-size: 11px; font-family: var(--mono); }
+.swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── CENTRE ── */
+.centre {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 1.25rem; overflow: auto; background: var(--bg);
+}
+.centre-inner { width: 100%; max-width: 560px; }
+#grid-wrap {
+  border: 1px solid var(--border2); border-radius: 8px;
+  overflow: hidden; display: inline-block;
+  box-shadow: 0 0 60px rgba(144,96,208,.15);
+}
+canvas { display: block; image-rendering: pixelated; }
+
+/* ── RIGHT PANEL ── */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-bottom: 1rem; }
+.stat { background: var(--surf2); border: 1px solid var(--border); border-radius: 7px; padding: .6rem .8rem; }
+.stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-family: var(--mono); }
+.stat-val   { font-size: 19px; font-weight: 600; font-family: var(--mono); }
+.inv { display: flex; flex-wrap: wrap; gap: .3rem; min-height: 28px; margin-bottom: 1rem; }
+.inv-badge { font-family: var(--mono); font-size: 11px; background: rgba(245,215,110,.15); color: var(--amber); border: 1px solid rgba(245,215,110,.25); border-radius: 4px; padding: 2px 9px; }
+.inv-empty { font-size: 11px; color: var(--muted); line-height: 28px; font-family: var(--mono); }
+.llm-box { background: var(--surf2); border: 1px solid rgba(144,96,208,.25); border-radius: 7px; padding: .7rem; font-family: var(--mono); font-size: 11px; min-height: 55px; color: var(--acc2); margin-bottom: .75rem; white-space: pre-wrap; word-break: break-all; line-height: 1.5; }
+.banner { display: none; padding: .65rem; border-radius: 7px; font-size: 13px; font-weight: 500; text-align: center; margin-bottom: .75rem; font-style: italic; }
+.banner.success { background: rgba(126,255,160,.1); border: 1px solid rgba(126,255,160,.3); color: var(--green); }
+.banner.failure { background: rgba(255,112,112,.1); border: 1px solid rgba(255,112,112,.3); color: var(--red); }
+#log { display: flex; flex-direction: column; gap: 3px; }
+.log-row { font-size: 11px; font-family: var(--mono); padding: 5px 7px; border-radius: 5px; background: var(--surf2); border-left: 3px solid var(--border2); line-height: 1.4; word-break: break-word; }
+.log-row.ok  { border-left-color: var(--green); }
+.log-row.err { border-left-color: var(--red); }
+.log-row.llm { border-left-color: var(--accent); background: rgba(144,96,208,.08); }
+.log-row.sys { border-left-color: var(--amber); color: var(--amber); }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Psyche &amp; Cupid — The Four Tasks</div>
+  <div class="status-pill">
+    <span class="dot" id="dot"></span>
+    <span id="status-txt">checking server...</span>
+  </div>
+</header>
+
+<main>
+
+<!-- ═══ LEFT PANEL ═══ -->
+<aside class="panel">
+  <div class="sec">
+    <div class="sec-title">The Tasks of Psyche</div>
+    <!-- Each card calls selectScenario(N). To add a task: copy a card and add to SCENARIOS below. -->
+    <div class="sc-card active" onclick="selectScenario(0)">
+      <h3>I — The Grain Room</h3>
+      <p>Sort the grain with help from the ants</p>
+    </div>
+    <div class="sc-card" onclick="selectScenario(1)">
+      <h3>II — The Golden Fleece</h3>
+      <p>Collect wool while the sun-rams sleep</p>
+    </div>
+    <div class="sc-card" onclick="selectScenario(2)">
+      <h3>III — The River Styx</h3>
+      <p>Fill the flask past the sleepless dragons</p>
+    </div>
+    <div class="sc-card" onclick="selectScenario(3)">
+      <h3>IV — The Underworld</h3>
+      <p>Retrieve Persephone's box and return</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Goal</div>
+    <div class="goal-box" id="goal-box">Select a task above.</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Controls</div>
+    <div class="btn-row">
+      <button class="btn btn-primary"   id="run-btn"  onclick="startRun()">&#9654; Run Psyche</button>
+      <button class="btn btn-secondary" id="step-btn" onclick="stepOnce()" disabled>Step Once</button>
+      <button class="btn btn-secondary"               onclick="resetWorld()">&#8635; Reset</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Legend</div>
+    <!-- Legend swatches are recoloured by updateLegend() when scenario changes -->
+    <div class="legend" id="legend">
+      <div class="leg"><div class="swatch" id="sw-agent"></div>@&nbsp; Psyche</div>
+      <div class="leg"><div class="swatch" id="sw-key"></div>K&nbsp; Key item</div>
+      <div class="leg"><div class="swatch" id="sw-door"></div>D&nbsp; Door / Gate</div>
+      <div class="leg"><div class="swatch" id="sw-open"></div>O&nbsp; Opened</div>
+      <div class="leg"><div class="swatch" id="sw-chest"></div>C&nbsp; Goal</div>
+      <div class="leg"><div class="swatch" id="sw-hazard"></div>!&nbsp; Hazard</div>
+      <div class="leg"><div class="swatch" id="sw-exit"></div>E&nbsp; Exit</div>
+      <div class="leg"><div class="swatch" id="sw-wall"></div>#&nbsp; Wall</div>
+    </div>
+  </div>
+
+  <!-- Literary source note -->
+  <div class="sec">
+    <div class="sec-title">Source</div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.6;font-family:var(--mono)">
+      Apuleius,<br>
+      <em style="font-family:var(--font)">The Golden Ass</em><br>
+      Books IV–VI, c.160 AD
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ CENTRE PANEL ═══ -->
+<section class="centre">
+  <div class="centre-inner">
+    <div class="sec-title" id="task-title" style="margin-bottom:.6rem">World Map</div>
+    <div id="grid-wrap"><canvas id="canvas"></canvas></div>
+  </div>
+</section>
+
+<!-- ═══ RIGHT PANEL ═══ -->
+<aside class="panel" style="display:flex;flex-direction:column;">
+  <div class="sec">
+    <div class="sec-title">Stats</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-label">Step</div><div class="stat-val" id="s-step">0</div></div>
+      <div class="stat"><div class="stat-label">Position</div><div class="stat-val" id="s-pos" style="font-size:13px">—</div></div>
+      <div class="stat"><div class="stat-label">Remaining</div><div class="stat-val" id="s-rem">—</div></div>
+      <div class="stat"><div class="stat-label">Hazards</div><div class="stat-val" id="s-haz" style="color:var(--red)">0</div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Inventory</div>
+    <div class="inv" id="inv"><span class="inv-empty">empty</span></div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Psyche's Action</div>
+    <div class="llm-box" id="llm-box">Waiting to start…</div>
+    <div class="banner" id="banner"></div>
+  </div>
+  <div class="sec-title">Event Log</div>
+  <div id="log" style="flex:1;overflow-y:auto;"></div>
+</aside>
+
+</main>
+
+<script>
+// NOTE: World physics are mirrored in agent_world.py.
+// If you add a scenario or change act() rules, update both files.
+
+// ══════════════════════════════════════════════
+// SCENARIOS  —  four tasks of Psyche
+// Source: Apuleius, The Golden Ass, Books IV-VI
+// ══════════════════════════════════════════════
+const SCENARIOS = [
+  {
+    name: "Task I — The Grain Room",
+    goal: "Collect ANT HELPERS (K) to sort the grain. Avoid the grain piles (!). Pass through each GRAIN SACK (D) using an ant. Reach the SORTED PILE (C).",
+    maxSteps: 60,
+    grid: [
+      "####################",
+      "#K.!..!...K........#",
+      "#..................#",
+      "#....!...!...K.....#",
+      "#..................#",
+      "#..!.....!.........#",
+      "#..................#",
+      "#...K.....!....K...#",
+      "#..................#",
+      "#....!.....!.......#",
+      "#..................#",
+      "#..K....!..........#",
+      "#..................#",
+      "##D###D###D###D#####",
+      "#....C.............#",
+      "####################",
+    ],
+    start: {x:1, y:1},
+  },
+  {
+    name: "Task II — The Golden Fleece",
+    goal: "Collect WOOL FROM BRAMBLES (K) around the meadow edge. Avoid the SUN-RAMS (!) in the centre. Reach the GOLDEN FLEECE (C). Exit (E) to return.",
+    maxSteps: 60,
+    grid: [
+      "####################",
+      "#.................E#",
+      "#..................K",
+      "#...!!!!!!!!!!!!...#",
+      "#...!          !.K.#",
+      "#...!  !!!!!!  !...#",
+      "#...!  !    !  !...#",
+      "#K..!  ! C  !  !...#",
+      "#...!  !    !  !.K.#",
+      "#...!  !!!!!!  !...#",
+      "#...!          !...#",
+      "#...!!!!!!!!!!!!...#",
+      "#..................K",
+      "#..................K",
+      "#.............K....#",
+      "####################",
+    ],
+    start: {x:1, y:1},
+  },
+  {
+    name: "Task III — The River Styx",
+    goal: "Collect RIVER REEDS (K) — they whisper the safe route. Avoid the DRAGONS (!). Use reeds to pass through each CLIFF GATE (D). Reach the SOURCE OF THE STYX (C).",
+    maxSteps: 70,
+    grid: [
+      "####################",
+      "#..................#",
+      "#..................#",
+      "#....K.............#",
+      "#...........K......#",
+      "####D###############",
+      "#..................#",
+      "#...!..............#",
+      "#......!...........#",
+      "#...........K......#",
+      "####D###############",
+      "#...!..............#",
+      "#.........!........#",
+      "#......K...........#",
+      "####D###############",
+      "#...!.....!........#",
+      "#..........!.......#",
+      "#..................#",
+      "#.........C........#",
+      "####################",
+    ],
+    start: {x:1, y:1},
+  },
+  {
+    name: "Task IV — The Underworld",
+    goal: "Collect COINS AND HONEYCAKES (K) — you need them for Charon and Cerberus. Ignore the PLEADING SOULS (!). Pass through each UNDERWORLD GATE (D). Reach PERSEPHONE'S BOX (C). Find the EXIT (E) — do not open the box.",
+    maxSteps: 80,
+    grid: [
+      "####################",
+      "#..................#",
+      "#...K..............#",
+      "#.........K........#",
+      "#..................#",
+      "##########D#########",
+      "#...!..............#",
+      "#.......!..........#",
+      "#...........K......#",
+      "#..................#",
+      "##########D#########",
+      "#...!..............#",
+      "#.......!..........#",
+      "#..................#",
+      "#.....K............#",
+      "##########D#########",
+      "#..................#",
+      "#.......!..........#",
+      "#.....C........E...#",
+      "####################",
+    ],
+    start: {x:1, y:1},
+  },
+];
+
+// ══════════════════════════════════════════════
+// COLOUR SCHEMES  —  one per task
+// Each task has its own palette reflecting its setting.
+// To change a colour: edit the hex value for that task.
+// ══════════════════════════════════════════════
+function getColors(idx) {
+  switch(idx) {
+    case 0: // Task 1 — warm terracotta grain room
+      return {
+        wall:'#5c3d2e', void:'#1a0f0a', floor:'#7a5535',
+        agent:'#f4c97a', key:'#e8f5a3', door:'#c17f3a',
+        open:'#7fb069', chest:'#f5e642', hazard:'#b5451b',
+        exit:'#a8d8ea', agentGlow:'rgba(244,201,122,.6)'
+      };
+    case 1: // Task 2 — bright golden meadow
+      return {
+        wall:'#2d5a27', void:'#0d1a0b', floor:'#5a9e45',
+        agent:'#fffde8', key:'#f5c518', door:'#8b5e3c',
+        open:'#a8d8a8', chest:'#ffd700', hazard:'#c97b2a',
+        exit:'#b8f0ff', agentGlow:'rgba(255,253,232,.6)'
+      };
+    case 2: // Task 3 — cold blue-grey Styx cliff
+      return {
+        wall:'#2a3a4a', void:'#0a0f14', floor:'#2e4055',
+        agent:'#c8e6ff', key:'#7effa0', door:'#3a5878',
+        open:'#5a8888', chest:'#00cfff', hazard:'#8b1a1a',
+        exit:'#ffd580', agentGlow:'rgba(200,230,255,.6)'
+      };
+    case 3: // Task 4 — deep purple Underworld
+      return {
+        wall:'#1a0a2e', void:'#050008', floor:'#251538',
+        agent:'#e8c4ff', key:'#f5d76e', door:'#5a2a8a',
+        open:'#7a4aaa', chest:'#ff80ff', hazard:'#3a5050',
+        exit:'#fff4b8', agentGlow:'rgba(232,196,255,.6)'
+      };
+    default:
+      return {
+        wall:'#3d4166', void:'#0e0f13', floor:'#181b27',
+        agent:'#8b9dff', key:'#fbbf24', door:'#f472b6',
+        open:'#34d399', chest:'#34d399', hazard:'#f87171',
+        exit:'#60a5fa', agentGlow:'rgba(139,157,255,.55)'
+      };
+  }
+}
+
+// Updates the legend colour swatches when the scenario changes
+function updateLegend(idx) {
+  const c = getColors(idx);
+  document.getElementById('sw-agent').style.background  = c.agent;
+  document.getElementById('sw-key').style.background    = c.key;
+  document.getElementById('sw-door').style.background   = c.door;
+  document.getElementById('sw-open').style.background   = c.open;
+  document.getElementById('sw-chest').style.background  = c.chest;
+  document.getElementById('sw-hazard').style.background = c.hazard;
+  document.getElementById('sw-exit').style.background   = c.exit;
+  document.getElementById('sw-wall').style.background   = c.wall;
+}
+
+// ══════════════════════════════════════════════
+// DIRECTIONS
+// ══════════════════════════════════════════════
+const DIRS = { north:[0,-1], south:[0,1], east:[1,0], west:[-1,0] };
+
+// ══════════════════════════════════════════════
+// WORLD CLASS  —  mirrors agent_world.py
+// ══════════════════════════════════════════════
+class World {
+  constructor(idx) {
+    const sc    = SCENARIOS[idx];
+    this.config = sc;
+    this.grid   = sc.grid.map(r => r.split(''));
+    this.height = this.grid.length;
+    this.width  = Math.max(...this.grid.map(r => r.length));
+    for (const r of this.grid) while (r.length < this.width) r.push(' ');
+    const {x, y} = sc.start;
+    this.grid[y][x] = '@';
+    this.agent = { x, y, inventory:[], steps:0, hazardHits:0, goalAchieved:false };
+    this.done   = false;
+    this.result = null;
+  }
+
+  cell(x, y) {
+    if (y < 0 || y >= this.height || x < 0 || x >= this.width) return '#';
+    return this.grid[y][x];
+  }
+  setCell(x, y, ch) { this.grid[y][x] = ch; }
+
+  observe() {
+    const {x:ax, y:ay, inventory, steps, hazardHits} = this.agent;
+
+    // Adjacent cells N/S/E/W with passable flag
+    const adj = {};
+    for (const [d,[dx,dy]] of Object.entries(DIRS)) {
+      const ch = this.cell(ax+dx, ay+dy);
+      adj[d] = { symbol:ch, passable: !['#','D',' '].includes(ch) };
+    }
+
+    // Nearby items within Manhattan distance 8
+    const nearby = [];
+    for (let iy = 0; iy < this.height; iy++)
+      for (let ix = 0; ix < this.width; ix++) {
+        const ch   = this.grid[iy][ix];
+        const dist = Math.abs(ix-ax) + Math.abs(iy-ay);
+        if (['K','D','C','E','!','O'].includes(ch) && dist <= 8)
+          nearby.push({ symbol:ch, relative_x:ix-ax, relative_y:iy-ay, distance:dist });
+      }
+    nearby.sort((a,b) => a.distance - b.distance);
+
+    return {
+      position:        {x:ax, y:ay},
+      inventory:       [...inventory],
+      steps_taken:     steps,
+      steps_remaining: this.config.maxSteps - steps,
+      goal:            this.config.goal,
+      adjacent_cells:  adj,
+      nearby_items:    nearby,
+      hazard_hits:     hazardHits,
+    };
+  }
+
+  act(action, params) {
+    const {x:ax, y:ay} = this.agent;
+    if (action === 'move') {
+      const dir = (params.direction||'').trim().toLowerCase();
+      if (!DIRS[dir]) return {success:false, message:`Bad direction '${dir}'.`};
+      const [dx,dy] = DIRS[dir];
+      const nx=ax+dx, ny=ay+dy;
+      const t = this.cell(nx,ny);
+      if (t==='#'||t===' ') return {success:false, message:'Blocked.'};
+      if (t==='D') {
+        if (this.agent.inventory.includes('K')) {
+          this.agent.inventory.splice(this.agent.inventory.indexOf('K'),1);
+          this.setCell(nx,ny,'O'); this.setCell(ax,ay,'.');
+          this.agent.x=nx; this.agent.y=ny; this.setCell(nx,ny,'@');
+          this.agent.steps++;
+          return {success:true, message:'Used a key — passage opened.'};
+        }
+        return {success:false, message:'Passage is sealed. Find a key item first.'};
+      }
+      this.setCell(ax,ay,'.');
+      this.agent.x=nx; this.agent.y=ny;
+      if (t==='K') {
+        this.agent.inventory.push('K'); this.setCell(nx,ny,'@'); this.agent.steps++;
+        return {success:true, message:`Picked up key item. Inventory: [${this.agent.inventory}]`};
+      }
+      if (t==='C') {
+        this.setCell(nx,ny,'@'); this.agent.steps++;
+        this.done=true; this.result='success'; this.agent.goalAchieved=true;
+        return {success:true, message:'TASK COMPLETE — goal reached!'};
+      }
+      if (t==='E') {
+        this.setCell(nx,ny,'@'); this.agent.steps++;
+        this.done=true; this.result='success'; this.agent.goalAchieved=true;
+        return {success:true, message:'TASK COMPLETE — returned safely!'};
+      }
+      if (t==='!') {
+        this.agent.hazardHits++; this.setCell(nx,ny,'@'); this.agent.steps++;
+        return {success:true, message:`Encountered hazard (${this.agent.hazardHits} total).`};
+      }
+      this.setCell(nx,ny,'@'); this.agent.steps++;
+      return {success:true, message:`Moved ${dir}.`};
+    }
+    if (action==='look') return {success:true, message:'Psyche looks around carefully.'};
+    if (action==='wait') { this.agent.steps++; return {success:true, message:'Psyche waits.'}; }
+    return {success:false, message:`Unknown action '${action}'.`};
+  }
+}
+
+// ══════════════════════════════════════════════
+// CANVAS RENDERING
+// CS = cell size in pixels. Increase to make grid bigger.
+// drawWorld() uses getColors(currentIdx) for the palette.
+// ══════════════════════════════════════════════
+const CS = 26;
+
+function drawWorld(w) {
+  const canvas = document.getElementById('canvas');
+  const ctx    = canvas.getContext('2d');
+  const c      = getColors(currentIdx);   // get this task's colour palette
+  canvas.width  = w.width  * CS;
+  canvas.height = w.height * CS;
+
+  // Map each grid character to its background colour
+  const colorMap = {
+    '#':c.wall, ' ':c.void, '.':c.floor,
+    '@':c.agent, 'K':c.key, 'D':c.door,
+    'O':c.open,  'C':c.chest, '!':c.hazard, 'E':c.exit,
+  };
+
+  for (let y = 0; y < w.height; y++) {
+    for (let x = 0; x < w.width; x++) {
+      const ch = w.grid[y][x];
+      ctx.fillStyle = colorMap[ch] || '#111';
+      ctx.fillRect(x*CS, y*CS, CS, CS);
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      ctx.strokeRect(x*CS+.5, y*CS+.5, CS-1, CS-1);
+      // Draw character label for non-background, non-agent cells
+      if (ch !== '#' && ch !== ' ' && ch !== '.' && ch !== '@') {
+        ctx.fillStyle    = 'rgba(255,255,255,0.9)';
+        ctx.font         = `${CS * .54}px Consolas, monospace`;
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(ch, x*CS+CS/2, y*CS+CS/2);
+      }
+    }
+  }
+
+  // Agent as glowing circle using this task's agent colour
+  const ax=w.agent.x, ay=w.agent.y;
+  ctx.shadowColor = c.agentGlow;
+  ctx.shadowBlur  = 14;
+  ctx.fillStyle   = c.agent;
+  ctx.beginPath();
+  ctx.arc(ax*CS+CS/2, ay*CS+CS/2, CS*.36, 0, Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle    = '#000';
+  ctx.font         = `bold ${CS*.44}px Consolas, monospace`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('@', ax*CS+CS/2, ay*CS+CS/2);
+}
+
+// ══════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════
+function updateStats(w) {
+  const a = w.agent;
+  document.getElementById('s-step').textContent = a.steps;
+  document.getElementById('s-pos').textContent  = `${a.x},${a.y}`;
+  document.getElementById('s-rem').textContent  = w.config.maxSteps - a.steps;
+  document.getElementById('s-haz').textContent  = a.hazardHits;
+  const inv = document.getElementById('inv');
+  inv.innerHTML = a.inventory.length
+    ? a.inventory.map(i => `<span class="inv-badge">${i}</span>`).join('')
+    : '<span class="inv-empty">empty</span>';
+}
+
+function log(msg, cls='') {
+  const el = document.createElement('div');
+  el.className  = 'log-row ' + cls;
+  el.textContent = msg;
+  document.getElementById('log').prepend(el);
+}
+
+// ══════════════════════════════════════════════
+// SERVER CALL  —  POST to server.py on port 5001
+// ══════════════════════════════════════════════
+async function callServer(conversation, obs, lastResult) {
+  let userContent = '';
+  if (lastResult) {
+    userContent += `[${lastResult.success?'OK':'FAIL'}] ${lastResult.message}\n`;
+  }
+  userContent += 'Current observation:\n' + JSON.stringify(obs, null, 2);
+  userContent += '\nYour next action (JSON only):';
+
+  const messages = [...conversation, {role:'user', content:userContent}];
+
+  const resp = await fetch('http://127.0.0.1:5001/agent', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({messages}),
+  });
+  if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error);
+  messages.push({role:'assistant', content:data.content});
+  return {raw:data.content, messages};
+}
+
+function parseAction(raw) {
+  let txt = raw.replace(/```[\w]*/g,'').replace(/```/g,'').trim();
+  const a = txt.indexOf('{'), b = txt.lastIndexOf('}')+1;
+  if (a===-1||b===0) return {action:'error', params:{raw}};
+  try {
+    const o = JSON.parse(txt.slice(a,b));
+    return {action:o.action||'error', params:o.params||{}};
+  } catch { return {action:'error', params:{raw}}; }
+}
+
+// ══════════════════════════════════════════════
+// APP STATE
+// ══════════════════════════════════════════════
+let world=null, conversation=[], lastResult=null;
+let running=false, currentIdx=0;
+
+function selectScenario(idx) {
+  currentIdx = idx;
+  document.querySelectorAll('.sc-card').forEach((c,i) =>
+    c.classList.toggle('active', i===idx));
+  document.getElementById('goal-box').textContent = SCENARIOS[idx].goal;
+  document.getElementById('task-title').textContent = SCENARIOS[idx].name;
+  updateLegend(idx);   // recolour the legend swatches
+  resetWorld();
+}
+
+function resetWorld() {
+  running=false;
+  world=new World(currentIdx);
+  conversation=[]; lastResult=null;
+  drawWorld(world);
+  updateStats(world);
+  document.getElementById('log').innerHTML='';
+  document.getElementById('llm-box').textContent='Waiting to start…';
+  document.getElementById('banner').style.display='none';
+  document.getElementById('run-btn').textContent='▶ Run Psyche';
+  document.getElementById('run-btn').disabled=false;
+  document.getElementById('step-btn').disabled=false;
+  log(`Reset: ${SCENARIOS[currentIdx].name}`, 'sys');
+}
+
+// ══════════════════════════════════════════════
+// MAIN STEP  —  perceive -> reason -> act
+// ══════════════════════════════════════════════
+async function doStep() {
+  if (world.done||world.agent.steps>=world.config.maxSteps) return false;
+  const obs = world.observe();
+  document.getElementById('llm-box').textContent='⟳ Psyche thinks…';
+
+  let raw, updatedConv;
+  try {
+    const res=await callServer(conversation, obs, lastResult);
+    raw=res.raw; updatedConv=res.messages;
+  } catch(e) {
+    log('Server error: '+e.message,'err');
+    document.getElementById('llm-box').textContent='Error: '+e.message;
+    running=false;
+    return false;
+  }
+
+  conversation=updatedConv;
+  document.getElementById('llm-box').textContent=raw;
+  log('Action: '+raw,'llm');
+
+  const {action,params}=parseAction(raw);
+  const result=(action==='error')
+    ? {success:false, message:`Parse error: ${JSON.stringify(params)}`}
+    : world.act(action,params);
+  lastResult=result;
+
+  log(`[${result.success?'OK':'FAIL'}] ${result.message}`, result.success?'ok':'err');
+  drawWorld(world);
+  updateStats(world);
+
+  if (world.done||world.agent.steps>=world.config.maxSteps) {
+    const won=world.done&&world.result==='success';
+    const banner=document.getElementById('banner');
+    banner.style.display='block';
+    banner.className='banner '+(won?'success':'failure');
+    banner.textContent=won
+      ? `Task complete in ${world.agent.steps} steps. The gods are appeased.`
+      : `Aphrodite is displeased. The task is failed.`;
+    log(won?'TASK COMPLETE':'TASK FAILED', won?'ok':'err');
+    return false;
+  }
+  return true;
+}
+
+async function startRun() {
+  if (running) {
+    running=false;
+    document.getElementById('run-btn').textContent='▶ Run Psyche';
+    return;
+  }
+  running=true;
+  document.getElementById('run-btn').textContent='⏸ Pause';
+  document.getElementById('step-btn').disabled=true;
+  while (running) {
+    const cont=await doStep();
+    if (!cont) break;
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  running=false;
+  document.getElementById('run-btn').textContent='▶ Run Psyche';
+  document.getElementById('step-btn').disabled=false;
+}
+
+async function stepOnce() {
+  if (running) return;
+  document.getElementById('step-btn').disabled=true;
+  await doStep();
+  document.getElementById('step-btn').disabled=false;
+}
+
+// ══════════════════════════════════════════════
+// SERVER STATUS CHECK
+// ══════════════════════════════════════════════
+async function checkServer() {
+  const dot=document.getElementById('dot');
+  const txt=document.getElementById('status-txt');
+  try {
+    const r=await fetch('http://127.0.0.1:5001/ping');
+    const d=await r.json();
+    if (d.status==='ok') {
+      dot.classList.add('on');
+      txt.textContent=`ready — ${d.model||'ollama'}`;
+    } else {
+      txt.textContent=d.message||'ollama offline';
+    }
+  } catch {
+    txt.textContent='server offline — run: python server.py';
+  }
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  selectScenario(0);   // load task 1 by default
+  checkServer();
+});
+</script>
+</body>
+</html>
