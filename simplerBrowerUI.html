@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Psyche &amp; Cupid — The Four Tasks</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0a0510;
+  --surf:   #12091e;
+  --surf2:  #1e1030;
+  --border: rgba(255,255,255,0.08);
+  --text:   #e8e0f0;
+  --muted:  #7060a0;
+  --accent: #9060d0;
+  --acc2:   #c090ff;
+  --green:  #7effa0;
+  --red:    #ff7070;
+  --amber:  #f5d76e;
+  --font:   'Palatino Linotype', Georgia, serif;
+  --mono:   'Consolas', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 52px 1fr;
+  overflow: hidden;
+}
+
+/* header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+}
+.logo { font-size: 16px; font-weight: 600; font-style: italic; }
+.status-pill {
+  font-size: 11px; font-family: var(--mono);
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+.dot.on { background: var(--green); }
+
+/* three column layout */
+main {
+  display: grid;
+  grid-template-columns: 300px 1fr 270px;
+  overflow: hidden;
+}
+
+/* side panels */
+.panel {
+  border-right: 1px solid var(--border);
+  padding: 1rem;
+  overflow-y: auto;
+}
+.panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+.sec { margin-bottom: 1.25rem; }
+.sec-title {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted);
+  margin-bottom: .6rem; font-weight: 500; font-family: var(--mono);
+}
+
+/* scenario cards */
+.sc-card {
+  padding: .7rem .9rem; border-radius: 8px; margin-bottom: .5rem;
+  border: 1px solid var(--border); background: var(--surf2);
+  cursor: pointer; transition: .12s;
+}
+.sc-card:hover  { border-color: rgba(255,255,255,0.15); }
+.sc-card.active { border-color: var(--accent); background: rgba(144,96,208,.15); }
+.sc-card h3 { font-size: 13px; font-weight: 600; font-style: italic; margin-bottom: 2px; }
+.sc-card p  { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+.goal-box {
+  background: rgba(144,96,208,.1); border: 1px solid rgba(144,96,208,.25);
+  border-radius: 6px; padding: .65rem .85rem;
+  font-size: 11px; color: var(--acc2); line-height: 1.7;
+}
+
+/* buttons */
+.btn-row { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .75rem; }
+.btn {
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  padding: .5rem .9rem; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer; transition: .12s;
+}
+.btn-primary  { background: var(--accent); color: #fff; border-color: transparent; }
+.btn-primary:hover  { background: #7040b0; }
+.btn-secondary      { background: var(--surf2); color: var(--text); }
+.btn-secondary:hover { background: #2a1845; }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* legend */
+.legend { display: flex; flex-wrap: wrap; gap: 5px; }
+.leg    { display: flex; align-items: center; gap: 4px; font-size: 11px; font-family: var(--mono); }
+.swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+/* source note */
+.source-note { font-size: 11px; color: var(--muted); line-height: 1.6; font-family: var(--mono); }
+
+/* centre canvas panel */
+.centre {
+  display: flex; flex-direction: column;
+  align-items: center; padding: 1.25rem;
+  overflow: auto; background: var(--bg);
+}
+.centre-inner { width: 100%; max-width: 520px; }
+#grid-wrap {
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+  overflow: hidden; display: inline-block;
+  box-shadow: 0 0 40px rgba(144,96,208,.12);
+}
+canvas { display: block; image-rendering: pixelated; }
+
+/* right panel */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-bottom: 1rem; }
+.stat { background: var(--surf2); border: 1px solid var(--border); border-radius: 7px; padding: .6rem .8rem; }
+.stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-family: var(--mono); }
+.stat-val   { font-size: 19px; font-weight: 600; font-family: var(--mono); }
+
+.inv { display: flex; flex-wrap: wrap; gap: .3rem; min-height: 28px; margin-bottom: 1rem; }
+.inv-badge { font-family: var(--mono); font-size: 11px; background: rgba(245,215,110,.15); color: var(--amber); border: 1px solid rgba(245,215,110,.25); border-radius: 4px; padding: 2px 9px; }
+.inv-empty { font-size: 11px; color: var(--muted); line-height: 28px; font-family: var(--mono); }
+
+.llm-box {
+  background: var(--surf2); border: 1px solid rgba(144,96,208,.25);
+  border-radius: 7px; padding: .7rem; font-family: var(--mono);
+  font-size: 11px; min-height: 50px; color: var(--acc2);
+  margin-bottom: .75rem; white-space: pre-wrap; word-break: break-all; line-height: 1.5;
+}
+.banner {
+  display: none; padding: .65rem; border-radius: 7px;
+  font-size: 13px; font-weight: 500; text-align: center;
+  margin-bottom: .75rem; font-style: italic;
+}
+.banner.success { background: rgba(126,255,160,.1); border: 1px solid rgba(126,255,160,.3); color: var(--green); }
+.banner.failure { background: rgba(255,112,112,.1); border: 1px solid rgba(255,112,112,.3); color: var(--red); }
+
+#log { display: flex; flex-direction: column; gap: 3px; }
+.log-row {
+  font-size: 11px; font-family: var(--mono);
+  padding: 5px 7px; border-radius: 5px;
+  background: var(--surf2); border-left: 3px solid rgba(255,255,255,0.15);
+  line-height: 1.4; word-break: break-word;
+}
+.log-row.ok  { border-left-color: var(--green); }
+.log-row.err { border-left-color: var(--red); }
+.log-row.llm { border-left-color: var(--accent); background: rgba(144,96,208,.08); }
+.log-row.sys { border-left-color: var(--amber); color: var(--amber); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Psyche &amp; Cupid — The Four Tasks</div>
+  <div class="status-pill">
+    <span class="dot" id="dot"></span>
+    <span id="status-txt">checking...</span>
+  </div>
+</header>
+
+<main>
+
+<!-- left panel -->
+<aside class="panel">
+  <div class="sec">
+    <div class="sec-title">The Tasks of Psyche</div>
+    <div class="sc-card active" onclick="selectScenario(0)">
+      <h3>I — The Grain Room</h3>
+      <p>Sort the grain with the ants</p>
+    </div>
+    <div class="sc-card" onclick="selectScenario(1)">
+      <h3>II — The Golden Fleece</h3>
+      <p>Collect wool while the rams sleep</p>
+    </div>
+    <div class="sc-card" onclick="selectScenario(2)">
+      <h3>III — The River Styx</h3>
+      <p>Fill the flask past the dragons</p>
+    </div>
+    <div class="sc-card" onclick="selectScenario(3)">
+      <h3>IV — The Underworld</h3>
+      <p>Retrieve Persephone's box</p>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Goal</div>
+    <div class="goal-box" id="goal-box">Select a task above.</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Controls</div>
+    <div class="btn-row">
+      <button class="btn btn-primary"   id="run-btn"  onclick="startRun()">&#9654; Run Psyche</button>
+      <button class="btn btn-secondary" id="step-btn" onclick="stepOnce()" disabled>Step Once</button>
+      <button class="btn btn-secondary"               onclick="resetWorld()">&#8635; Reset</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Legend</div>
+    <div class="legend" id="legend">
+      <div class="leg"><div class="swatch" id="sw-agent"></div>@&nbsp;Psyche</div>
+      <div class="leg"><div class="swatch" id="sw-key"></div>K&nbsp;Key item</div>
+      <div class="leg"><div class="swatch" id="sw-door"></div>D&nbsp;Door</div>
+      <div class="leg"><div class="swatch" id="sw-open"></div>O&nbsp;Open door</div>
+      <div class="leg"><div class="swatch" id="sw-chest"></div>C&nbsp;Goal</div>
+      <div class="leg"><div class="swatch" id="sw-hazard"></div>!&nbsp;Hazard</div>
+      <div class="leg"><div class="swatch" id="sw-exit"></div>E&nbsp;Exit</div>
+      <div class="leg"><div class="swatch" id="sw-wall"></div>#&nbsp;Wall</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">Source</div>
+    <div class="source-note">
+      Apuleius,<br>
+      <em style="font-family:var(--font)">The Golden Ass</em><br>
+      Books IV–VI, c.160 AD
+    </div>
+  </div>
+</aside>
+
+<!-- centre canvas -->
+<section class="centre">
+  <div class="centre-inner">
+    <div class="sec-title" id="task-title" style="margin-bottom:.6rem">World Map</div>
+    <div id="grid-wrap"><canvas id="canvas"></canvas></div>
+  </div>
+</section>
+
+<!-- right panel -->
+<aside class="panel" style="display:flex;flex-direction:column;">
+  <div class="sec">
+    <div class="sec-title">Stats</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-label">Step</div><div class="stat-val" id="s-step">0</div></div>
+      <div class="stat"><div class="stat-label">Position</div><div class="stat-val" id="s-pos" style="font-size:13px">—</div></div>
+      <div class="stat"><div class="stat-label">Remaining</div><div class="stat-val" id="s-rem">—</div></div>
+      <div class="stat"><div class="stat-label">Hazards</div><div class="stat-val" id="s-haz" style="color:var(--red)">0</div></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Inventory</div>
+    <div class="inv" id="inv"><span class="inv-empty">empty</span></div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Last Action</div>
+    <div class="llm-box" id="llm-box">Waiting…</div>
+    <div class="banner" id="banner"></div>
+  </div>
+  <div class="sec-title">Event Log</div>
+  <div id="log" style="flex:1;overflow-y:auto;"></div>
+</aside>
+
+</main>
+
+<script>
+
+// Scenarios
+const SCENARIOS = [
+  {
+    name: "Task I — The Grain Room",
+    goal: "Collect the ANT HELPER (K), pass through the GRAIN SACK (D), reach the SORTED PILE (C).",
+    maxSteps: 35,
+    grid: [
+      "#########",
+      "#...K...#",
+      "#.......#",
+      "#.......#",
+      "#.......#",
+      "####D####",
+      "#...C...#",
+      "#########",
+    ],
+    start: {x:1, y:1},
+    colors: {
+      wall:"#5c3d2e", void:"#1a0f0a", floor:"#7a5535",
+      agent:"#f4c97a", key:"#e8f5a3", door:"#c17f3a",
+      open:"#7fb069", chest:"#f5e642", hazard:"#b5451b",
+      exit:"#a8d8ea", glow:"rgba(244,201,122,.6)"
+    }
+  },
+  {
+    name: "Task II — The Golden Fleece",
+    goal: "Collect WOOL FROM BRAMBLES (K), avoid the SUN-RAMS (!), reach the GOLDEN FLEECE (C).",
+    maxSteps: 35,
+    grid: [
+      "#########",
+      "#.......#",
+      "#.K.....#",
+      "#.......#",
+      "#..!!!..#",
+      "#.......#",
+      "#....C..#",
+      "#########",
+    ],
+    start: {x:1, y:1},
+    colors: {
+      wall:"#2d5a27", void:"#0d1a0b", floor:"#5a9e45",
+      agent:"#fffde8", key:"#f5c518", door:"#8b5e3c",
+      open:"#a8d8a8", chest:"#ffd700", hazard:"#c97b2a",
+      exit:"#b8f0ff", glow:"rgba(255,253,232,.6)"
+    }
+  },
+  {
+    name: "Task III — The River Styx",
+    goal: "Collect the CRYSTAL VESSEL (K), avoid the DRAGONS (!), meet the EAGLE (D), reach the SOURCE OF THE STYX (C).",
+    maxSteps: 40,
+    grid: [
+      "#########",
+      "#...K...#",
+      "#.......#",
+      "#.!.....#",
+      "####D####",
+      "#.......#",
+      "#..!....#",
+      "#...C...#",
+      "#########",
+    ],
+    start: {x:1, y:1},
+    colors: {
+      wall:"#2a3a4a", void:"#0a0f14", floor:"#2e4055",
+      agent:"#c8e6ff", key:"#7effa0", door:"#3a5878",
+      open:"#5a8888", chest:"#00cfff", hazard:"#8b1a1a",
+      exit:"#ffd580", glow:"rgba(200,230,255,.6)"
+    }
+  },
+  {
+    name: "Task IV — The Underworld",
+    goal: "Collect COINS AND CAKES (K), avoid PLEADING SOULS (!), pass through UNDERWORLD GATES (D), reach PERSEPHONE'S BOX (C), and return to the SURFACE (E).",
+    maxSteps: 50,
+    grid: [
+      "##########",
+      "#.K......#",
+      "#........#",
+      "#...!....#",
+      "#####D####",
+      "#.K......#",
+      "#........#",
+      "#.....!..#",
+      "#####D####",
+      "#....C..E#",
+      "##########",
+    ],
+    start: {x:1, y:1},
+    colors: {
+      wall:"#1a0a2e", void:"#050008", floor:"#251538",
+      agent:"#e8c4ff", key:"#f5d76e", door:"#5a2a8a",
+      open:"#7a4aaa", chest:"#ff80ff", hazard:"#3a5050",
+      exit:"#fff4b8", glow:"rgba(232,196,255,.6)"
+    }
+  },
+];
+
+const DIRS = { north:[0,-1], south:[0,1], east:[1,0], west:[-1,0] };
+
+// World Class
+class World {
+  constructor(idx) {
+    const sc    = SCENARIOS[idx];
+    this.config = sc;
+    this.grid   = sc.grid.map(r => r.split(''));
+    this.height = this.grid.length;
+    this.width  = Math.max(...this.grid.map(r => r.length));
+    for (const r of this.grid) while (r.length < this.width) r.push(' ');
+    const {x, y} = sc.start;
+    this.grid[y][x] = '@';
+    this.agent = { x, y, inventory:[], steps:0, hazardHits:0, goalAchieved:false };
+    this.done   = false;
+    this.result = null;
+  }
+
+  cell(x, y) {
+    if (y < 0 || y >= this.height || x < 0 || x >= this.width) return '#';
+    return this.grid[y][x];
+  }
+  setCell(x, y, ch) { this.grid[y][x] = ch; }
+
+  observe() {
+    const {x:ax, y:ay, inventory, steps, hazardHits} = this.agent;
+
+    const passable = [], blocked = [], adj = {};
+    for (const [d,[dx,dy]] of Object.entries(DIRS)) {
+      const ch = this.cell(ax+dx, ay+dy);
+      const ok = ch !== '#' && ch !== ' ' && !(ch === 'D' && !inventory.includes('K'));
+      adj[d] = { symbol:ch, passable:ok };
+      if (ok) passable.push(d); else blocked.push(d);
+    }
+
+    const nearby = [];
+    for (let iy = 0; iy < this.height; iy++)
+      for (let ix = 0; ix < this.width; ix++) {
+        const ch   = this.grid[iy][ix];
+        const dist = Math.abs(ix-ax) + Math.abs(iy-ay);
+        if (['K','D','C','E','!','O'].includes(ch) && dist <= 8) {
+          const rx = ix-ax, ry = iy-ay;
+          const cands = [];
+          if (Math.abs(ry) >= Math.abs(rx)) {
+            if (ry > 0) cands.push('south'); else if (ry < 0) cands.push('north');
+            if (rx > 0) cands.push('east');  else if (rx < 0) cands.push('west');
+          } else {
+            if (rx > 0) cands.push('east');  else if (rx < 0) cands.push('west');
+            if (ry > 0) cands.push('south'); else if (ry < 0) cands.push('north');
+          }
+          const hint = cands.find(d => passable.includes(d)) || cands[0] || null;
+          nearby.push({ symbol:ch, relative_x:rx, relative_y:ry, distance:dist, move_hint:hint });
+        }
+      }
+    nearby.sort((a,b) => a.distance - b.distance);
+
+    return {
+      position:            {x:ax, y:ay},
+      inventory:           [...inventory],
+      steps_remaining:     this.config.maxSteps - steps,
+      goal:                this.config.goal,
+      passable_directions: passable,
+      blocked_directions:  blocked,
+      adjacent_cells:      adj,
+      nearby_items:        nearby.slice(0,6),
+      hazard_hits:         hazardHits,
+    };
+  }
+
+  act(action, params) {
+    const {x:ax, y:ay} = this.agent;
+    if (action === 'move') {
+      const dir = (params.direction||'').trim().toLowerCase();
+      if (!DIRS[dir]) return {success:false, message:`Bad direction '${dir}'.`};
+      const [dx,dy] = DIRS[dir];
+      const nx=ax+dx, ny=ay+dy, t=this.cell(nx,ny);
+      if (t==='#'||t===' ') return {success:false, message:'Blocked by a wall.'};
+      if (t==='D') {
+        if (this.agent.inventory.includes('K')) {
+          this.agent.inventory.splice(this.agent.inventory.indexOf('K'),1);
+          this.setCell(nx,ny,'O'); this.setCell(ax,ay,'.');
+          this.agent.x=nx; this.agent.y=ny; this.setCell(nx,ny,'@');
+          this.agent.steps++;
+          return {success:true, message:'Used key — door opened.'};
+        }
+        return {success:false, message:'Door locked. Find a key first.'};
+      }
+      this.setCell(ax,ay,'.');
+      this.agent.x=nx; this.agent.y=ny;
+      if (t==='K') {
+        this.agent.inventory.push('K'); this.setCell(nx,ny,'@'); this.agent.steps++;
+        return {success:true, message:`Picked up key. Inventory: [${this.agent.inventory}]`};
+      }
+      if (t==='C') {
+        this.setCell(nx,ny,'@'); this.agent.steps++;
+        this.done=true; this.result='success'; this.agent.goalAchieved=true;
+        return {success:true, message:'TASK COMPLETE!'};
+      }
+      if (t==='E') {
+        this.setCell(nx,ny,'@'); this.agent.steps++;
+        this.done=true; this.result='success'; this.agent.goalAchieved=true;
+        return {success:true, message:'TASK COMPLETE — returned safely!'};
+      }
+      if (t==='!') {
+        this.agent.hazardHits++; this.setCell(nx,ny,'@'); this.agent.steps++;
+        return {success:true, message:`Hit hazard (${this.agent.hazardHits} total).`};
+      }
+      this.setCell(nx,ny,'@'); this.agent.steps++;
+      return {success:true, message:`Moved ${dir}.`};
+    }
+    if (action==='look') return {success:true, message:'Looking around.'};
+    if (action==='wait') { this.agent.steps++; return {success:true, message:'Waited.'}; }
+    return {success:false, message:`Unknown action '${action}'.`};
+  }
+}
+
+// Grid Drawing
+const CS = 40; 
+
+function drawWorld(w) {
+  const canvas = document.getElementById('canvas');
+  const ctx    = canvas.getContext('2d');
+  const c      = SCENARIOS[currentIdx].colors;
+  canvas.width  = w.width  * CS;
+  canvas.height = w.height * CS;
+
+  const colorMap = {
+    '#':c.wall, ' ':c.void, '.':c.floor,
+    '@':c.agent,'K':c.key,  'D':c.door,
+    'O':c.open, 'C':c.chest,'!':c.hazard,'E':c.exit
+  };
+
+  for (let y = 0; y < w.height; y++) {
+    for (let x = 0; x < w.width; x++) {
+      const ch = w.grid[y][x];
+      ctx.fillStyle = colorMap[ch] || '#111';
+      ctx.fillRect(x*CS, y*CS, CS, CS);
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      ctx.strokeRect(x*CS+.5, y*CS+.5, CS-1, CS-1);
+      if (ch !== '#' && ch !== ' ' && ch !== '.' && ch !== '@') {
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = `bold ${CS*.5}px Consolas, monospace`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(ch, x*CS+CS/2, y*CS+CS/2);
+      }
+    }
+  }
+
+  const ax=w.agent.x, ay=w.agent.y;
+  ctx.shadowColor = c.glow; ctx.shadowBlur = 16;
+  ctx.fillStyle   = c.agent;
+  ctx.beginPath();
+  ctx.arc(ax*CS+CS/2, ay*CS+CS/2, CS*.38, 0, Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.font = `bold ${CS*.42}px Consolas, monospace`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('@', ax*CS+CS/2, ay*CS+CS/2);
+}
+
+function updateLegend(idx) {
+  const c = SCENARIOS[idx].colors;
+  document.getElementById('sw-agent').style.background  = c.agent;
+  document.getElementById('sw-key').style.background    = c.key;
+  document.getElementById('sw-door').style.background   = c.door;
+  document.getElementById('sw-open').style.background   = c.open;
+  document.getElementById('sw-chest').style.background  = c.chest;
+  document.getElementById('sw-hazard').style.background = c.hazard;
+  document.getElementById('sw-exit').style.background   = c.exit;
+  document.getElementById('sw-wall').style.background   = c.wall;
+}
+
+function updateStats(w) {
+  const a = w.agent;
+  document.getElementById('s-step').textContent = a.steps;
+  document.getElementById('s-pos').textContent  = `${a.x},${a.y}`;
+  document.getElementById('s-rem').textContent  = w.config.maxSteps - a.steps;
+  document.getElementById('s-haz').textContent  = a.hazardHits;
+  const inv = document.getElementById('inv');
+  inv.innerHTML = a.inventory.length
+    ? a.inventory.map(i => `<span class="inv-badge">${i}</span>`).join('')
+    : '<span class="inv-empty">empty</span>';
+}
+
+function log(msg, cls='') {
+  const el = document.createElement('div');
+  el.className = 'log-row ' + cls;
+  el.textContent = msg;
+  document.getElementById('log').prepend(el);
+}
+
+// Call LLM
+async function callServer(conversation, obs, lastResult) {
+  let content = '';
+  if (lastResult) content += `[${lastResult.success?'OK':'FAIL'}] ${lastResult.message}\n`;
+  content += 'Observation:\n' + JSON.stringify(obs, null, 2);
+  content += '\nYour action:';
+
+  const messages = [...conversation, {role:'user', content}];
+  const resp = await fetch('http://127.0.0.1:5001/agent', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({messages})
+  });
+  if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error);
+  messages.push({role:'assistant', content:data.content});
+  return {raw:data.content, messages};
+}
+
+function parseAction(raw) {
+  const txt = raw.replace(/```/g,'').trim();
+  const a = txt.indexOf('{'), b = txt.lastIndexOf('}')+1;
+  if (a===-1||b===0) return {action:'error', params:{raw}};
+  try {
+    const o = JSON.parse(txt.slice(a,b));
+    return {action:o.action||'error', params:o.params||{}};
+  } catch { return {action:'error', params:{raw}}; }
+}
+
+let world=null, conversation=[], lastResult=null;
+let running=false, currentIdx=0;
+let moveHistory=[];
+
+function selectScenario(idx) {
+  currentIdx = idx;
+  document.querySelectorAll('.sc-card').forEach((c,i) => c.classList.toggle('active', i===idx));
+  document.getElementById('goal-box').textContent  = SCENARIOS[idx].goal;
+  document.getElementById('task-title').textContent = SCENARIOS[idx].name;
+  updateLegend(idx);
+  resetWorld();
+}
+
+function resetWorld() {
+  running=false; moveHistory=[];
+  world=new World(currentIdx);
+  conversation=[]; lastResult=null;
+  drawWorld(world); updateStats(world);
+  document.getElementById('log').innerHTML='';
+  document.getElementById('llm-box').textContent='Waiting…';
+  document.getElementById('banner').style.display='none';
+  document.getElementById('run-btn').textContent='▶ Run Psyche';
+  document.getElementById('run-btn').disabled=false;
+  document.getElementById('step-btn').disabled=false;
+  log(`Reset: ${SCENARIOS[currentIdx].name}`, 'sys');
+}
+
+// LLM Steps
+async function doStep() {
+  if (world.done || world.agent.steps >= world.config.maxSteps) return false;
+
+  const obs = world.observe();
+  document.getElementById('llm-box').textContent = '⟳ Thinking…';
+
+  let raw, updatedConv;
+  try {
+    const res = await callServer(conversation, obs, lastResult);
+    raw=res.raw; updatedConv=res.messages;
+  } catch(e) {
+    log('Error: '+e.message, 'err');
+    document.getElementById('llm-box').textContent = 'Error: '+e.message;
+    running=false; return false;
+  }
+
+  conversation=updatedConv;
+  document.getElementById('llm-box').textContent = raw;
+  log('LLM: '+raw, 'llm');
+
+  const {action, params} = parseAction(raw);
+
+  if (action==='move' && params.direction) {
+    const obs2 = world.observe();
+
+    const isLooping = moveHistory.length >= 4 && new Set(moveHistory.slice(-4)).size <= 2;
+
+    if (isLooping) {
+      const recent   = new Set(moveHistory.slice(-4));
+      const freshDir = obs2.passable_directions.find(d => !recent.has(d));
+      if (freshDir) { params.direction=freshDir; log('Loop broken: '+freshDir, 'sys'); }
+    } else if (obs2.blocked_directions.includes(params.direction)) {
+      const target = obs2.nearby_items.find(i => ['K','C','E','D'].includes(i.symbol) && i.move_hint);
+      if (target) { params.direction=target.move_hint; log('Redirected: '+params.direction, 'sys'); }
+      else if (obs2.passable_directions[0]) params.direction=obs2.passable_directions[0];
+    }
+
+    moveHistory.push(params.direction);
+    if (moveHistory.length > 6) moveHistory.shift();
+  }
+
+  const result = (action==='error')
+    ? {success:false, message:`Parse error`}
+    : world.act(action, params);
+  lastResult=result;
+
+  log(`[${result.success?'OK':'FAIL'}] ${result.message}`, result.success?'ok':'err');
+  drawWorld(world); updateStats(world);
+
+  if (world.done || world.agent.steps >= world.config.maxSteps) {
+    const won = world.done && world.result==='success';
+    const banner = document.getElementById('banner');
+    banner.style.display='block';
+    banner.className='banner '+(won?'success':'failure');
+    banner.textContent = won
+      ? `Task complete in ${world.agent.steps} steps. The gods are appeased.`
+      : 'The task is failed. Aphrodite is displeased.';
+    log(won?'TASK COMPLETE':'TASK FAILED', won?'ok':'err');
+    return false;
+  }
+  return true;
+}
+
+async function startRun() {
+  if (running) {
+    running=false;
+    document.getElementById('run-btn').textContent='▶ Run Psyche';
+    return;
+  }
+  running=true;
+  document.getElementById('run-btn').textContent='⏸ Pause';
+  document.getElementById('step-btn').disabled=true;
+  while (running) {
+    const cont = await doStep();
+    if (!cont) break;
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  running=false;
+  document.getElementById('run-btn').textContent='▶ Run Psyche';
+  document.getElementById('step-btn').disabled=false;
+}
+
+async function stepOnce() {
+  if (running) return;
+  document.getElementById('step-btn').disabled=true;
+  await doStep();
+  document.getElementById('step-btn').disabled=false;
+}
+
+// Server status
+async function checkServer() {
+  const dot=document.getElementById('dot');
+  const txt=document.getElementById('status-txt');
+  try {
+    const r = await fetch('http://127.0.0.1:5001/ping');
+    const d = await r.json();
+    if (d.status==='ok') {
+      dot.classList.add('on');
+      txt.textContent = `ready — ${d.model||'ollama'}`;
+    } else {
+      txt.textContent = d.message || 'ollama offline';
+    }
+  } catch {
+    txt.textContent = 'server offline — run: python server.py';
+  }
+}
+
+window.addEventListener('load', () => { selectScenario(0); checkServer(); });
+</script>
+</body>
+</html>
