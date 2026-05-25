@@ -1,5 +1,5 @@
 """
-Requires server.py running first.
+Requires PsycheServer.py running first.
 """
 
 import sys
