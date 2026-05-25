@@ -1,0 +1,237 @@
+{
+  "scenario": "Task I — The Grain Room",
+  "goal": "Collect ANT HELPERS (K) to sort the grain. Avoid the grain piles (!). Pass through each GRAIN SACK (D) using an ant. Reach the SORTED PILE (C).",
+  "model": "qwen2.5:0.5b",
+  "result": "success",
+  "steps_taken": 22,
+  "hazard_hits": 1,
+  "loop_overrides": 2,
+  "wall_overrides": 1,
+  "steps": [
+    {
+      "step": 1,
+      "position": {"x": 1, "y": 1},
+      "inventory": [],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"east\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": null,
+      "result": {"success": true, "message": "Picked up key item. Inventory: ['K']"}
+    },
+    {
+      "step": 2,
+      "position": {"x": 2, "y": 1},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"north\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": "wall — north blocked, hint override to south",
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 3,
+      "position": {"x": 2, "y": 2},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 4,
+      "position": {"x": 2, "y": 3},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 5,
+      "position": {"x": 2, "y": 4},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Stepped on hazard (1 total)."}
+    },
+    {
+      "step": 6,
+      "position": {"x": 2, "y": 5},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 7,
+      "position": {"x": 2, "y": 6},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"north\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": "loop — north/south oscillation detected, trying east",
+      "result": {"success": true, "message": "Moved east."}
+    },
+    {
+      "step": 8,
+      "position": {"x": 3, "y": 6},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 9,
+      "position": {"x": 3, "y": 7},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 10,
+      "position": {"x": 3, "y": 8},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 11,
+      "position": {"x": 3, "y": 9},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 12,
+      "position": {"x": 3, "y": 10},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 13,
+      "position": {"x": 3, "y": 11},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 14,
+      "position": {"x": 3, "y": 12},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"west\"}}",
+      "action": "move",
+      "params": {"direction": "west"},
+      "override": null,
+      "result": {"success": true, "message": "Moved west."}
+    },
+    {
+      "step": 15,
+      "position": {"x": 2, "y": 12},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 16,
+      "position": {"x": 2, "y": 13},
+      "inventory": ["K"],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"east\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": null,
+      "result": {"success": true, "message": "Used a key — passage opened."}
+    },
+    {
+      "step": 17,
+      "position": {"x": 3, "y": 13},
+      "inventory": [],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"east\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": null,
+      "result": {"success": true, "message": "Moved east."}
+    },
+    {
+      "step": 18,
+      "position": {"x": 4, "y": 13},
+      "inventory": [],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"north\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": "loop — repeated directions, trying east",
+      "result": {"success": true, "message": "Moved east."}
+    },
+    {
+      "step": 19,
+      "position": {"x": 5, "y": 13},
+      "inventory": [],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"south\"}}",
+      "action": "move",
+      "params": {"direction": "south"},
+      "override": null,
+      "result": {"success": true, "message": "Moved south."}
+    },
+    {
+      "step": 20,
+      "position": {"x": 5, "y": 14},
+      "inventory": [],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"east\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": null,
+      "result": {"success": true, "message": "Moved east."}
+    },
+    {
+      "step": 21,
+      "position": {"x": 6, "y": 14},
+      "inventory": [],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"east\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": null,
+      "result": {"success": true, "message": "Moved east."}
+    },
+    {
+      "step": 22,
+      "position": {"x": 7, "y": 14},
+      "inventory": [],
+      "llm_reply": "{\"action\": \"move\", \"params\": {\"direction\": \"east\"}}",
+      "action": "move",
+      "params": {"direction": "east"},
+      "override": null,
+      "result": {"success": true, "message": "TASK COMPLETE — goal reached!"}
+    }
+  ],
+  "notes": {
+    "loop_overrides_explanation": "Steps 7 and 18 show the oscillation detector firing. In both cases the agent was bouncing between two directions and the harness forced a fresh direction.",
+    "wall_override_explanation": "Step 2 shows the wall-bash override. The model chose north (into the top wall) and the harness redirected south toward the nearest goal item.",
+    "hazard_explanation": "Step 5 shows the agent stepping on a grain pile hazard (!). The task was still completed successfully despite the penalty hit."
+  }
+}
